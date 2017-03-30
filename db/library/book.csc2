@@ -1,0 +1,22 @@
+constants {
+  TITLE_LEN = 41,
+}
+
+tag ondisk
+{
+  longlong book_id
+  cstring title[TITLE_LEN]
+  longlong category_code
+}
+
+keys
+{
+    "KEY_UNIQUE_ID" = book_id
+}
+
+constraints
+{
+  "KEY_CATEGORY_CODE" -> <"category":"KEY_UNIQUE_ID">
+  on delete cascade
+  on update cascade
+}

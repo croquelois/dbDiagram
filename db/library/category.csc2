@@ -1,0 +1,14 @@
+constants {
+  CATEGORY_NAME_LEN = 41,
+}
+
+tag ondisk
+{
+  longlong category_code
+  cstring category_name[CATEGORY_NAME_LEN]
+}
+
+keys
+{
+    "KEY_UNIQUE_ID" = category_code
+}

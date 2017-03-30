@@ -1,0 +1,14 @@
+constants {
+  NAME_LEN = 41,
+}
+
+tag ondisk
+{
+  longlong author_id
+  cstring name[NAME_LEN]
+}
+
+keys
+{
+    "KEY_UNIQUE_ID" = author_id
+}
