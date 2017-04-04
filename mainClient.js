@@ -152,8 +152,10 @@ ipc.on('list', function(event, dbs){
   dbs.forEach(name => select.append($("<option>").attr("value",name).text(name)));
   select.material_select();
   $('#selectPopup').modal("open");
+  $('#selectPopup .modal-footer').addClass("hide");
 });
-$('#selectPopup #ok').click(function(){
+
+$('#databaseSelection').change(function(){
   let v = $('#databaseSelection').val();
   if(v){
     ipc.send("get",v);
@@ -161,13 +163,19 @@ $('#selectPopup #ok').click(function(){
     $('#selectPopup').modal("close");
   }
 });
+
 ipc.on('get', function(event, list){
   console.log(list);
   $('#waitPopup').modal("close");
   let nodes = [];
   let links = [];
+  let errorMsgs = [];
   list.forEach(function(item){
     let name = item.name;
+    if(item.error){
+      errorMsgs.push(name + ": " + item.error);
+      return;
+    }
     let data = item.data || {};
     let keys = {};
     Object.keys(data.keys).map(k => data.keys[k]).filter(v => !v.dup).forEach(v => v.keys.forEach(k => keys[k] = true));
@@ -179,6 +187,14 @@ ipc.on('get', function(event, list){
       if(v.table) links.push({source:name,target:v.table});
     }
   });
+  if(errorMsgs.length){
+    $('#errorPopup').modal("open");
+    let ul = $("<ul>");
+    errorMsgs.forEach(msg => ul.append($("<li>").text(msg)));
+    $('#errorPopup #message').append(ul);
+    $('#errorPopup .modal-footer').addClass("hide");
+    return;
+  }
   drawGraph({nodes, links});
 });
 
@@ -188,19 +204,5 @@ $(function() {
   $('select').material_select();
   selectPopup();
 });
-
-function testgraph(){ // jshint ignore:line
-  drawGraph({
-    nodes:[
-      {name:"A",table:["item1","item2","item3"]},
-      {name:"B",table:["ok","voila","we"]},
-      {name:"C",table:["retar","utulue","palcopi"]}
-    ],
-    links:[
-      {source:"A", target: "B"},
-      {source:"B", target: "C"},
-    ]
-  });
-}
 
 })();

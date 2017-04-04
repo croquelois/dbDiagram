@@ -28,6 +28,10 @@ function parseConstants(array){
 
 function parseTag(array){
   array = arraySplitTrim(" ", array);
+  array.forEach(function(line){
+    if(line.length == 1 || line.length > 2)
+      throw new Error("each line in the tag section should contain a field type and name separated by a space, it's not the case for '"+line+"'");
+  });
   array = array.map(line => line[1].split("[")[0]);
   return array;
 }
@@ -57,9 +61,35 @@ function parseConstraints(array){
   return map;
 }
 
+function fixIllPlacedBracket(lines){
+  let ret = [];
+  function doCloseBracket(txt){
+    let tmp = splitTrim("}", txt);
+    if(tmp.length > 2) throw new Error("ill placed bracket");
+    ret.push(tmp[0]);
+    if(tmp.length > 1){
+      ret.push("}");
+      ret.push(tmp[1]);
+    }
+  }
+  function doOpenBracket(txt){
+    let tmp = splitTrim("{", txt);
+    if(tmp.length > 2) throw new Error("ill placed bracket");
+    doCloseBracket(tmp[0]);
+    if(tmp.length > 1){
+      ret.push("{");
+      doCloseBracket(tmp[1]);
+    }
+  }
+  lines.forEach(doOpenBracket);
+  return ret;
+}
+
 function parse(str){
-  let lines = str.split("\n").map(cleanLine).filter(line => line);
-  let state;
+  let lines = str.split("\n").map(cleanLine);
+  lines = fixIllPlacedBracket(lines);
+  lines = lines.filter(line => line);
+  let state = "invalid";
   let array;
   let map = {};
   lines.forEach(function(line){
@@ -69,6 +99,7 @@ function parse(str){
     else state = line.split(" ")[0];
   });
   map.constants = parseConstants(map.constants);
+  if(!map.tag) throw new Error("Unable to found the 'tag' section");
   map.tag = parseTag(map.tag);
   map.keys = parseKeys(map.keys);
   map.constraints = parseConstraints(map.constraints);

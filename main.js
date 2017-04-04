@@ -24,6 +24,7 @@ ipcMain.on('get', function(event, dbname) {
       try {
         data = parse(""+data);
       }catch(err){
+        console.log(err);
         return cb(null,{name,error:"cannot parse the file"});
       }
       return cb(null,{name,data});
@@ -31,6 +32,7 @@ ipcMain.on('get', function(event, dbname) {
   }
   fs.readdir(dir,function(err,files){
     if(err) return event.sender.send('error', err);
+    files = files.filter(file => (path.parse(file).ext == ".csc2"));
     async.map(files, parseFile, function(err,data){
       if(err) return event.sender.send('error', err);
       event.sender.send('get', data);

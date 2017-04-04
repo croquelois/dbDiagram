@@ -1,14 +1,12 @@
-constants {
-  CATEGORY_NAME_LEN = 41,
-}
 
 tag ondisk
 {
   longlong category_code
-  cstring category_name[CATEGORY_NAME_LEN]
+  cstring category_name[41]
 }
 
 keys
 {
     "KEY_UNIQUE_ID" = category_code
+    dup "CATEGORY_NAME" = category_name
 }

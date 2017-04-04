@@ -1,11 +1,9 @@
-tag ondisk
-{
+tag ondisk {
   longlong book_id
   longlong author_id
 }
 
-constraints
-{
+constraints {
   "KEY_BOOK_ID" -> <"book":"KEY_UNIQUE_ID">
   on delete cascade
   on update cascade
